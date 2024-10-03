@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parse Image Metadata</title>
+    <style>
+        body {
+            display: flex;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        .frame {
+            margin: 10px;
+            flex: 1;
+
+        }
+
+        .frame img {
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        .drop-area {
+            border: 2px dashed #aaa;
+            background-color: #f9f9f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .text-frame {
+            border: 2px solid #ddd;
+            padding: 20px;
+            overflow: auto;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="frame drop-area" id="imageFrame">
+        <p>Drop an image here</p>
+    </div>
+
+    <pre class="frame text-frame" id="responseFrame"></pre>
+
+    <script>
+        const imageFrame = document.getElementById('imageFrame');
+        const responseFrame = document.getElementById('responseFrame');
+
+        // Prevent default drag behaviors
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(event => {
+            imageFrame.addEventListener(event, e => e.preventDefault());
+        });
+
+        // Handle dropped files
+        imageFrame.addEventListener('drop', (event) => {
+            const file = event.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                displayImage(file);
+                uploadImage(file);
+            }
+        });
+
+        function displayImage(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                imageFrame.innerHTML = `<img src="${e.target.result}" alt="Dropped image">`;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function uploadImage(file) {
+            const formData = new FormData();
+            formData.append('image', file);
+
+            fetch('/api/parse', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        responseFrame.innerHTML = JSON.stringify(data.metadata, null, 2);
+                    }
+                    else {
+                        responseFrame.textContent = data.error;
+                    }
+                })
+                .catch(error => {
+                    responseFrame.textContent = 'Error: ' + error.message;
+                });
+        }
+    </script>
+
+</body>
+
+</html>
