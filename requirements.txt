@@ -1,4 +1,4 @@
-sd-parsers
+sd-parsers >= 0.5
 fastapi
 uvicorn
 python-multipart

@@ -3,7 +3,7 @@ usage: python3 parser.py
 """
 
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, UploadFile
+from fastapi import FastAPI, Response, UploadFile
 from fastapi.responses import FileResponse
 
 from sd_parsers import ParserManager
@@ -37,12 +37,12 @@ def parse(image: UploadFile):
     try:
         info = parser_manager.parse(image.file)
         if info is None:
-            return {"success": False, "error": "no metadata found"}
+            return {"error": "no metadata found"}
 
-        return {"success": True, "metadata": info}
+        return Response(content=info.to_json(), media_type="application/json")
 
     except Exception as error:
-        return {"success": False, "error": str(error)}
+        return {"error": str(error)}
 
 
 if __name__ == "__main__":

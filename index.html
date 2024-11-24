@@ -84,11 +84,11 @@
             })
                 .then(response => response.json())
                 .then(data => {
-                    if (data.success) {
-                        responseFrame.innerHTML = JSON.stringify(data.metadata, null, 2);
+                    if (data.error) {
+                        responseFrame.textContent = data.error;
                     }
                     else {
-                        responseFrame.textContent = data.error;
+                        responseFrame.innerHTML = JSON.stringify(data, null, 2);
                     }
                 })
                 .catch(error => {
